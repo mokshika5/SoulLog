@@ -310,6 +310,7 @@ const globalStyles = `
     flex-direction: column;
     position: relative;
     min-height: 90px;
+    minWidth: 0;
   }
   .cal-day:hover { background: var(--paper); }
   .cal-day.period { background: #FFF0EE; }
@@ -908,7 +909,7 @@ function DailyHubView({ userData, setUserData, today, dayNames, monthNames, toda
             )}
           </div>
         </div>
-
+        
         {/* Right: Habits + 75 Hard */}
         <div style={{ display:'flex', flexDirection:'column', gap:20 }}>
           {/* Habits */}
@@ -1074,7 +1075,7 @@ function TimelineView({ userData, setUserData, initialYear, initialMonth, curren
   const dayLabels = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
 
   return (
-    <div style={{ display:'flex', flexDirection:'column', gap:28 }} className="animate-up">
+    <div style={{ display:'flex', flexDirection:'column', gap:28 , width: '100%', minWidth: 0 }} className="animate-up">
       <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', flexWrap:'wrap', gap:12 }}>
         <h1 className="font-serif" style={{ fontSize:38, fontWeight:700, letterSpacing:'-0.02em' }}>Timeline</h1>
         <div style={{ display:'flex', gap:10, alignItems:'center', flexWrap:'wrap' }}>
@@ -1090,39 +1091,48 @@ function TimelineView({ userData, setUserData, initialYear, initialMonth, curren
         </div>
       </div>
 
-      <div style={{ background:'var(--white)', borderRadius:20, border:'1px solid var(--ink-10)', overflow:'hidden' }}>
-        {/* Day labels */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', background:'var(--paper)', borderBottom:'1px solid var(--ink-10)' }}>
-          {dayLabels.map(d => <div key={d} style={{ padding:'12px 0', textAlign:'center', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--ink-30)' }}>{d}</div>)}
-        </div>
-        {/* Calendar cells */}
-        <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'1px', background:'var(--ink-05)' }}>
-          {Array.from({length:firstDayOffset}).map((_,i) => <div key={`b${i}`} style={{ background:'var(--cream)', minHeight:90 }} />)}
-          {Array.from({length:daysInMonth},(_,i)=>i+1).map(day => {
-            const key = getKey(day);
-            const data = userData.calendarData[key] || {};
-            const isToday = key === todayKey;
-            return (
-              <div key={day} className={`cal-day ${data.isPeriod ? 'period' : ''}`} onClick={() => openModal(day)}
-                style={{ background: data.isPeriod ? '#FFF0EE' : 'var(--white)', outline: isToday ? '2px solid var(--sage)' : 'none', outlineOffset:'-2px', zIndex: isToday ? 1 : 0 }}>
-                <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
-                  <span className={`cal-day-num ${isToday?'today':''} ${data.isPeriod&&!isToday?'period-day':''}`}>{day}</span>
-                  {data.sticker && <span style={{ fontSize:16 }}>{data.sticker}</span>}
-                </div>
-                <div style={{ marginTop:'auto', display:'flex', flexDirection:'column', gap:2 }}>
-                  {(data.events||[]).slice(0,2).map((ev,i) => (
-                    <div key={i} style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background: data.isPeriod ? 'rgba(196,117,106,0.15)' : 'var(--sage-pale)', color: data.isPeriod ? 'var(--rose)' : 'var(--sage)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ev}</div>
-                  ))}
-                  <div style={{ display:'flex', gap:3, marginTop:2 }}>
-                    {data.journal && <div style={{ width:5, height:5, borderRadius:'50%', background:'var(--lavender)' }} title="Journal"/>}
-                    {data.gratitude?.some(g=>g?.trim()) && <div style={{ width:5, height:5, borderRadius:'50%', background:'var(--gold)' }} title="Gratitude"/>}
+      <div style={{ background:'var(--white)', borderRadius:20, border:'1px solid var(--ink-10)', overflow:'hidden', width: '100%' }}>
+        <div className="custom-scrollbar" style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch', width: '100%' }}>
+          <div style={{ minWidth: 750, width: '100%' }}>
+            
+            {/* Day labels */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', background:'var(--paper)', borderBottom:'1px solid var(--ink-10)' }}>
+              {dayLabels.map(d => <div key={d} style={{ padding:'12px 0', textAlign:'center', fontSize:11, fontWeight:700, letterSpacing:'0.08em', textTransform:'uppercase', color:'var(--ink-30)' }}>{d}</div>)}
+            </div>
+            
+            {/* Calendar cells */}
+            <div style={{ display:'grid', gridTemplateColumns:'repeat(7,1fr)', gap:'1px', background:'var(--ink-05)' }}>
+              {Array.from({length:firstDayOffset}).map((_,i) => <div key={`b${i}`} style={{ background:'var(--cream)', minHeight:90 }} />)}
+              {Array.from({length:daysInMonth},(_,i)=>i+1).map(day => {
+                const key = getKey(day);
+                const data = userData.calendarData[key] || {};
+                const isToday = key === todayKey;
+                return (
+                  <div key={day} className={`cal-day ${data.isPeriod ? 'period' : ''}`} onClick={() => openModal(day)}
+                    style={{ background: data.isPeriod ? '#FFF0EE' : 'var(--white)', outline: isToday ? '2px solid var(--sage)' : 'none', outlineOffset:'-2px', zIndex: isToday ? 1 : 0 }}>
+                    <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between' }}>
+                      <span className={`cal-day-num ${isToday?'today':''} ${data.isPeriod&&!isToday?'period-day':''}`}>{day}</span>
+                      {data.sticker && <span style={{ fontSize:16 }}>{data.sticker}</span>}
+                    </div>
+                    <div style={{ marginTop:'auto', display:'flex', flexDirection:'column', gap:2 }}>
+                      {(data.events||[]).slice(0,2).map((ev,i) => (
+                        <div key={i} style={{ fontSize:9, fontWeight:700, padding:'2px 6px', borderRadius:4, background: data.isPeriod ? 'rgba(196,117,106,0.15)' : 'var(--sage-pale)', color: data.isPeriod ? 'var(--rose)' : 'var(--sage)', whiteSpace:'nowrap', overflow:'hidden', textOverflow:'ellipsis' }}>{ev}</div>
+                      ))}
+                      <div style={{ display:'flex', gap:3, marginTop:2 }}>
+                        {data.journal && <div style={{ width:5, height:5, borderRadius:'50%', background:'var(--lavender)' }} title="Journal"/>}
+                        {data.gratitude?.some(g=>g?.trim()) && <div style={{ width:5, height:5, borderRadius:'50%', background:'var(--gold)' }} title="Gratitude"/>}
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+
+          </div>
         </div>
       </div>
+
+        
 
       {/* Month Summary Modal */}
       {showMonthSummary && (
